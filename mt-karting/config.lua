@@ -37,8 +37,6 @@ Lang = {
     ['Price'] = 'Price ',
     ['TimeRemaning'] = 'Time remaining: ',
     ['Seconds'] = ' seconds',
-    ['ActiveTicket'] = 'You already have an active ticket...',
-    ['NoActiveTicket'] = 'You dont have any active ticket at the moment...',
     ['StopTicket'] = 'Stop active ticket',
     ['Finished'] = 'Ticket time finish if you want to keep using our karts buy another ticket...',
 }
