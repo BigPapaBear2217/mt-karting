@@ -1,5 +1,6 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local Time = 0
+TicketAtivo = false
 
 CreateThread(function()
     while true do
@@ -37,7 +38,7 @@ CreateThread(function()
         },
         distance = 2.5
     })
-        
+
     local blip = AddBlipForCoord(Config.Locations['PedTarget'])
     
     SetBlipSprite (blip, 38)
@@ -152,50 +153,53 @@ local function startTimer(Time)
     local gameTimer = GetGameTimer()
     local EliminarVeiculo = GetVehiclePedIsIn(PlayerPedId(), true)
     CreateThread(function()
-        while true do
+        while TicketAtivo do
+            Wait(1)
             if GetGameTimer() < gameTimer + tonumber(1000 * Time) then
                 local secondsLeft = GetGameTimer() - gameTimer
                 drawTxt(Lang.TimeRemaning .. math.ceil(Time - secondsLeft / 1000) .. Lang.Seconds, 4, 0.5, 0.93, 0.50, 255, 255, 255, 180)
             end
-            Wait(0)
         end
     end)
 end
 
 RegisterNetEvent('mt-karting:client:Ticket', function(args)
-    local EliminarVeiculo = GetVehiclePedIsIn(PlayerPedId(), true)
+    local EliminarVeiculo = QBCore.Functions.GetClosestVehicle()
 
-    if args == 1 then
+    if args == 1 and TicketAtivo == false then
         local time = Config.Tickets[1].time * 60
 
         TriggerServerEvent('QBCore:Server:RemoveMoney', 'bank', Config.Tickets[1].price)
         Time = time
+        TicketAtivo = true
+        print(TicketAtivo)
         startTimer(Time)
         SpawnKart(Time)
-    elseif args == 2 then
+    elseif args == 2 and TicketAtivo == false then
         local time2 = Config.Tickets[2].time * 60
 
         TriggerServerEvent('QBCore:Server:RemoveMoney', 'bank', Config.Tickets[2].price)
         Time = time2
         startTimer(Time)
         SpawnKart(Time)
-    elseif args == 3 then
+    elseif args == 3 and TicketAtivo == false then
         local time3 = Config.Tickets[3].time * 60
 
         TriggerServerEvent('QBCore:Server:RemoveMoney', 'bank', Config.Tickets[3].price)
         Time = time3
         startTimer(Time)
         SpawnKart(Time)
-    elseif args == 4 then
+    elseif args == 4 and TicketAtivo == false then
         local time4 = Config.Tickets[4].time * 60
 
         TriggerServerEvent('QBCore:Server:RemoveMoney', 'bank', Config.Tickets[4].price)
         Time = time4
         startTimer(Time)
         SpawnKart(Time)
-    elseif args == 5 then
+    elseif args == 5 and TicketAtivo == true then
+        TicketAtivo = false
         DeleteEntity(EliminarVeiculo)
     else
-        QBCore.Functions.Notify(Lang.NoActiveTicket, 'error', 7500)
+        QBCore.Functions.Notify(Lang.ActiveTicket, 'error', 7500)
     end
 end)

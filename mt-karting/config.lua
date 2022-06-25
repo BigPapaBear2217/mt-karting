@@ -39,4 +39,6 @@ Lang = {
     ['Seconds'] = ' seconds',
     ['StopTicket'] = 'Stop active ticket',
     ['Finished'] = 'Ticket time finish if you want to keep using our karts buy another ticket...',
+    ['NoActiveTicket'] = 'You dont have any active ticket at the moment...',
+    ['ActiveTicket'] = 'You already have an active ticket...',
 }
