@@ -177,6 +177,28 @@ local function DeleteVehicle(Time, veh)
     QBCore.Functions.Notify(Lang.Finished, 'primary', 7500)
 end
 
+local function DeleteVehicle2(veh)
+    DeleteEntity(veh)
+end
+
+local function startTimer(Time, veh)
+    local gameTimer = GetGameTimer()
+    local EliminarVeiculo = GetVehiclePedIsIn(PlayerPedId(), true)
+    CreateThread(function()
+        while TicketAtivo or not TicketAtivo do
+            Wait(1)
+            if TicketAtivo == true then
+                if GetGameTimer() < gameTimer + tonumber(1000 * Time) then
+                    local secondsLeft = GetGameTimer() - gameTimer
+                    drawTxt(Lang.TimeRemaning .. math.ceil(Time - secondsLeft / 1000) .. Lang.Seconds, 4, 0.5, 0.93, 0.50, 255, 255, 255, 180)
+                end
+            elseif TicketAtivo == false then
+                DeleteVehicle2(veh)
+            end
+        end
+    end)
+end
+
 local function SpawnKart(Time)
     local veiculo = Config.Vehicle
     local coords = Config.Locations['KartSpawn']
@@ -187,26 +209,13 @@ local function SpawnKart(Time)
         exports['LegacyFuel']:SetFuel(veh, 100.0)
         TriggerEvent("vehiclekeys:client:SetOwner", GetVehicleNumberPlateText(veh))
         SetVehicleEngineOn(veh, true, true)
+        startTimer(Time, veh)
         DeleteVehicle(Time, veh)
     end, coords, true)
 end
 
-local function startTimer(Time)
-    local gameTimer = GetGameTimer()
-    local EliminarVeiculo = GetVehiclePedIsIn(PlayerPedId(), true)
-    CreateThread(function()
-        while TicketAtivo do
-            Wait(1)
-            if GetGameTimer() < gameTimer + tonumber(1000 * Time) then
-                local secondsLeft = GetGameTimer() - gameTimer
-                drawTxt(Lang.TimeRemaning .. math.ceil(Time - secondsLeft / 1000) .. Lang.Seconds, 4, 0.5, 0.93, 0.50, 255, 255, 255, 180)
-            end
-        end
-    end)
-end
-
 RegisterNetEvent('mt-karting:client:Ticket', function(args)
-    local EliminarVeiculo = QBCore.Functions.GetClosestVehicle()
+   -- local EliminarVeiculo = QBCore.Functions.GetClosestVehicle()
 
     if args == 1 and TicketAtivo == false then
         local time = Config.Tickets[1].time * 60
@@ -214,33 +223,35 @@ RegisterNetEvent('mt-karting:client:Ticket', function(args)
         TriggerServerEvent('QBCore:Server:RemoveMoney', 'bank', Config.Tickets[1].price)
         Time = time
         TicketAtivo = true
-        print(TicketAtivo)
-        startTimer(Time)
+      --  startTimer(Time)
         SpawnKart(Time)
     elseif args == 2 and TicketAtivo == false then
         local time2 = Config.Tickets[2].time * 60
 
         TriggerServerEvent('QBCore:Server:RemoveMoney', 'bank', Config.Tickets[2].price)
         Time = time2
-        startTimer(Time)
+        TicketAtivo = true
+       -- startTimer(Time)
         SpawnKart(Time)
     elseif args == 3 and TicketAtivo == false then
         local time3 = Config.Tickets[3].time * 60
 
         TriggerServerEvent('QBCore:Server:RemoveMoney', 'bank', Config.Tickets[3].price)
         Time = time3
-        startTimer(Time)
+        TicketAtivo = true
+       -- startTimer(Time)
         SpawnKart(Time)
     elseif args == 4 and TicketAtivo == false then
         local time4 = Config.Tickets[4].time * 60
 
         TriggerServerEvent('QBCore:Server:RemoveMoney', 'bank', Config.Tickets[4].price)
         Time = time4
-        startTimer(Time)
+        TicketAtivo = true
+       -- startTimer(Time)
         SpawnKart(Time)
     elseif args == 5 and TicketAtivo == true then
         TicketAtivo = false
-        DeleteEntity(EliminarVeiculo)
+      --  DeleteEntity(EliminarVeiculo)
     else
         QBCore.Functions.Notify(Lang.ActiveTicket, 'error', 7500)
     end
