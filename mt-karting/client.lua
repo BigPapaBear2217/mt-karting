@@ -1,6 +1,7 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local Time = 0
-TicketAtivo = false
+local TicketAtivo = false
+local Veiculo = nil
 local KartingPoly = PolyZone:Create({
     vector2(-169.23545837402, -2126.0227050781),
     vector2(-103.59944915771, -2103.1733398438),
@@ -40,8 +41,6 @@ local KartingPoly = PolyZone:Create({
     vector2(-159.11499023438, -2158.771484375)
   }, {
     name="kartzone",
-    --minZ = 17.695684432983,
-    --maxZ = 23.556203842163
   })  
 
 CreateThread(function()
@@ -95,66 +94,80 @@ CreateThread(function()
 end)
 
 RegisterNetEvent('mt-karting:client:MenuAluger', function()
-    exports['qb-menu']:openMenu({
-        {
-            header = Lang.MenuHeader,
-            isMenuHeader = true,
-        },
-        {
-            header = Lang.CloseMenu,
-            event = "qb-menu:closeMenu",
-            icon = "fas fa-times-circle",
-        },
-        {
-            header = Lang.Ticket1,
-            txt = Lang.Duration .. Config.Tickets[1].time .. Lang.Minutes .. "<br>" .. Lang.Price .. Config.Tickets[1].price .. "$",
-            icon = "fas fa-ticket",
-            event = "mt-karting:client:Ticket1",
-            params = {
-                event = "mt-karting:client:Ticket",
-                args = 1
+    if TicketAtivo == true then
+        exports['qb-menu']:openMenu({
+            {
+                header = Lang.MenuHeader,
+                isMenuHeader = true,
             },
-        },
-        {
-            header = Lang.Ticket2,
-            txt = Lang.Duration .. Config.Tickets[2].time .. Lang.Minutes .. "<br>" .. Lang.Price .. Config.Tickets[2].price .. "$",
-            icon = "fas fa-ticket",
-            event = "mt-karting:client:Ticket",
-            params = {
-                event = "mt-karting:client:Ticket",
-                args = 2
+            {
+                header = Lang.CloseMenu,
+                event = "qb-menu:closeMenu",
+                icon = "fas fa-times-circle",
             },
-        },
-        {
-            header = Lang.Ticket3,
-            txt = Lang.Duration .. Config.Tickets[3].time .. Lang.Minutes .. "<br>" .. Lang.Price .. Config.Tickets[3].price .. "$",
-            icon = "fas fa-ticket",
-            params = {
+            {
+                header = Lang.StopTicket,
+                txt = "",
+                icon = "fas fa-ticket",
                 event = "mt-karting:client:Ticket",
-                args = 3
+                params = {
+                    event = "mt-karting:client:Ticket",
+                    args = 5
+                },
             },
-        },
-        {
-            header = Lang.Ticket4,
-            txt = Lang.Duration .. Config.Tickets[4].time .. Lang.Minutes .. "<br>" .. Lang.Price .. Config.Tickets[4].price .. "$",
-            icon = "fas fa-ticket",
-            event = "mt-karting:client:Ticket",
-            params = {
+        })
+    else
+        exports['qb-menu']:openMenu({
+            {
+                header = Lang.MenuHeader,
+                isMenuHeader = true,
+            },
+            {
+                header = Lang.CloseMenu,
+                event = "qb-menu:closeMenu",
+                icon = "fas fa-times-circle",
+            },
+            {
+                header = Lang.Ticket1,
+                txt = Lang.Duration .. Config.Tickets[1].time .. Lang.Minutes .. "<br>" .. Lang.Price .. Config.Tickets[1].price .. "$",
+                icon = "fas fa-ticket",
+                event = "mt-karting:client:Ticket1",
+                params = {
+                    event = "mt-karting:client:Ticket",
+                    args = 1
+                },
+            },
+            {
+                header = Lang.Ticket2,
+                txt = Lang.Duration .. Config.Tickets[2].time .. Lang.Minutes .. "<br>" .. Lang.Price .. Config.Tickets[2].price .. "$",
+                icon = "fas fa-ticket",
                 event = "mt-karting:client:Ticket",
-                args = 4
+                params = {
+                    event = "mt-karting:client:Ticket",
+                    args = 2
+                },
             },
-        },
-        {
-            header = Lang.StopTicket,
-            txt = "",
-            icon = "fas fa-ticket",
-            event = "mt-karting:client:Ticket",
-            params = {
+            {
+                header = Lang.Ticket3,
+                txt = Lang.Duration .. Config.Tickets[3].time .. Lang.Minutes .. "<br>" .. Lang.Price .. Config.Tickets[3].price .. "$",
+                icon = "fas fa-ticket",
+                params = {
+                    event = "mt-karting:client:Ticket",
+                    args = 3
+                },
+            },
+            {
+                header = Lang.Ticket4,
+                txt = Lang.Duration .. Config.Tickets[4].time .. Lang.Minutes .. "<br>" .. Lang.Price .. Config.Tickets[4].price .. "$",
+                icon = "fas fa-ticket",
                 event = "mt-karting:client:Ticket",
-                args = 5
+                params = {
+                    event = "mt-karting:client:Ticket",
+                    args = 4
+                },
             },
-        },
-    })
+        })
+    end
 end)
 
 local function drawTxt(text, font, x, y, scale, r, g, b, a)
@@ -173,12 +186,13 @@ local function DeleteVehicle(Time, veh)
     print(Tempo)
 
     Wait(Tempo)
-    DeleteEntity(veh)
+    DeleteEntity(Veiculo)
+    TicketAtivo = false
     QBCore.Functions.Notify(Lang.Finished, 'primary', 7500)
 end
 
 local function DeleteVehicle2(veh)
-    DeleteEntity(veh)
+    DeleteEntity(Veiculo)
 end
 
 local function startTimer(Time, veh)
@@ -194,6 +208,7 @@ local function startTimer(Time, veh)
                 end
             elseif TicketAtivo == false then
                 DeleteVehicle2(veh)
+                gameTimer = 0
             end
         end
     end)
@@ -205,6 +220,7 @@ local function SpawnKart(Time)
     local EliminarVeiculo = GetVehiclePedIsIn(PlayerPedId(), true)
 
     QBCore.Functions.SpawnVehicle(veiculo, function(veh)
+        Veiculo = veh
         SetVehicleNumberPlateText(veh, "KART"..tostring(math.random(1000, 9999)))
         exports['LegacyFuel']:SetFuel(veh, 100.0)
         TriggerEvent("vehiclekeys:client:SetOwner", GetVehicleNumberPlateText(veh))
@@ -215,15 +231,12 @@ local function SpawnKart(Time)
 end
 
 RegisterNetEvent('mt-karting:client:Ticket', function(args)
-   -- local EliminarVeiculo = QBCore.Functions.GetClosestVehicle()
-
     if args == 1 and TicketAtivo == false then
         local time = Config.Tickets[1].time * 60
 
         TriggerServerEvent('QBCore:Server:RemoveMoney', 'bank', Config.Tickets[1].price)
         Time = time
         TicketAtivo = true
-      --  startTimer(Time)
         SpawnKart(Time)
     elseif args == 2 and TicketAtivo == false then
         local time2 = Config.Tickets[2].time * 60
@@ -231,7 +244,6 @@ RegisterNetEvent('mt-karting:client:Ticket', function(args)
         TriggerServerEvent('QBCore:Server:RemoveMoney', 'bank', Config.Tickets[2].price)
         Time = time2
         TicketAtivo = true
-       -- startTimer(Time)
         SpawnKart(Time)
     elseif args == 3 and TicketAtivo == false then
         local time3 = Config.Tickets[3].time * 60
@@ -239,7 +251,6 @@ RegisterNetEvent('mt-karting:client:Ticket', function(args)
         TriggerServerEvent('QBCore:Server:RemoveMoney', 'bank', Config.Tickets[3].price)
         Time = time3
         TicketAtivo = true
-       -- startTimer(Time)
         SpawnKart(Time)
     elseif args == 4 and TicketAtivo == false then
         local time4 = Config.Tickets[4].time * 60
@@ -247,11 +258,10 @@ RegisterNetEvent('mt-karting:client:Ticket', function(args)
         TriggerServerEvent('QBCore:Server:RemoveMoney', 'bank', Config.Tickets[4].price)
         Time = time4
         TicketAtivo = true
-       -- startTimer(Time)
         SpawnKart(Time)
     elseif args == 5 and TicketAtivo == true then
         TicketAtivo = false
-      --  DeleteEntity(EliminarVeiculo)
+        DeleteEntity(Veiculo)
     else
         QBCore.Functions.Notify(Lang.ActiveTicket, 'error', 7500)
     end
@@ -261,9 +271,8 @@ CreateThread(function()
     KartingPoly:onPlayerInOut(function(isPointOutside)
         if not isPointOutside then
             if TicketAtivo == true then
-                local EliminarVeiculo = QBCore.Functions.GetClosestVehicle()
                 TicketAtivo = false
-                DeleteEntity(EliminarVeiculo)
+                DeleteEntity(Veiculo)
                 QBCore.Functions.Notify(Lang.DeletedVehicle, 'primary', 7500)
             end
         end
