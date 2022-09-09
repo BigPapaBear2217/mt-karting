@@ -209,6 +209,7 @@ local function startTimer(Time, veh)
             elseif TicketAtivo == false then
                 DeleteVehicle2(veh)
                 gameTimer = 0
+                Time = 0
             end
         end
     end)
@@ -261,6 +262,7 @@ RegisterNetEvent('mt-karting:client:Ticket', function(args)
         SpawnKart(Time)
     elseif args == 5 and TicketAtivo == true then
         TicketAtivo = false
+        Time = 0
         DeleteEntity(Veiculo)
     else
         QBCore.Functions.Notify(Lang.ActiveTicket, 'error', 7500)
