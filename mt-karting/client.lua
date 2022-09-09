@@ -191,10 +191,6 @@ local function DeleteVehicle(Time, veh)
     QBCore.Functions.Notify(Lang.Finished, 'primary', 7500)
 end
 
-local function DeleteVehicle2(veh)
-    DeleteEntity(Veiculo)
-end
-
 local function startTimer(Time, veh)
     local gameTimer = GetGameTimer()
     local EliminarVeiculo = GetVehiclePedIsIn(PlayerPedId(), true)
@@ -207,7 +203,7 @@ local function startTimer(Time, veh)
                     drawTxt(Lang.TimeRemaning .. math.ceil(Time - secondsLeft / 1000) .. Lang.Seconds, 4, 0.5, 0.93, 0.50, 255, 255, 255, 180)
                 end
             elseif TicketAtivo == false then
-                DeleteVehicle2(veh)
+                DeleteEntity(Veiculo)
                 gameTimer = 0
                 Time = 0
             end
@@ -274,6 +270,7 @@ CreateThread(function()
         if not isPointOutside then
             if TicketAtivo == true then
                 TicketAtivo = false
+                Time = 0
                 DeleteEntity(Veiculo)
                 QBCore.Functions.Notify(Lang.DeletedVehicle, 'primary', 7500)
             end
