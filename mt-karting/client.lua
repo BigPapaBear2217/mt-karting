@@ -39,24 +39,25 @@ local KartingPoly = PolyZone:Create({
     vector2(-143.04769897461, -2157.0837402344),
     vector2(-150.01580810547, -2155.7995605469),
     vector2(-159.11499023438, -2158.771484375)
-  }, {
+}, {
     name="kartzone",
-  })  
+})
 
-CreateThread(function()
+Citizen.CreateThread(function()
     while true do
-        Wait(0)
+        Citizen.Wait(0)
         ClearAreaOfVehicles(-85.162, -2067.108, 21.797, 1000, false, false, false, false, false)
         RemoveVehiclesFromGeneratorsInArea(-85.162 - 90.0, -2067.108 - 90.0, 21 - 90.0, -85.162 + 90.0, 2067.108 + 90.0, 21 + 90.0)
     end
 end)
 
-CreateThread(function()
-    RequestModel(`hc_driver`)
-      while not HasModelLoaded(`hc_driver`) do
+Citizen.CreateThread(function()
+    local hash = GetHashKey("hc_driver")
+    RequestModel(hash)
+      while not HasModelLoaded(hash) do
       Wait(1)
     end
-    KartingPed = CreatePed(2, `hc_driver`, Config.Locations['Ped'], false, false)
+    KartingPed = CreatePed(2, hash, Config.Locations['Ped'], false, false)
     SetPedFleeAttributes(KartingPed, 0, 0)
     SetPedDiesWhenInjured(KartingPed, false)
     TaskStartScenarioInPlace(KartingPed, "missheistdockssetup1clipboard@base", 0, true)
@@ -64,7 +65,7 @@ CreateThread(function()
     SetBlockingOfNonTemporaryEvents(KartingPed, true)
     SetEntityInvincible(KartingPed, true)
     FreezeEntityPosition(KartingPed, true)
-  
+
     exports['qb-target']:AddBoxZone("KartingPed", Config.Locations['PedTarget'], 1, 1, {
         name="KartingPed",
         heading=0,
@@ -81,11 +82,11 @@ CreateThread(function()
     })
 
     local blip = AddBlipForCoord(Config.Locations['PedTarget'])
-    
-    SetBlipSprite (blip, 38)
+
+    SetBlipSprite(blip, 38)
     SetBlipDisplay(blip, 2)
-    SetBlipScale  (blip, 0.9)
-    SetBlipColour (blip, 37)
+    SetBlipScale(blip, 0.9)
+    SetBlipColour(blip, 37)
     SetBlipAsShortRange(blip, true)
 
     BeginTextCommandSetBlipName("STRING")
@@ -185,7 +186,7 @@ local function DeleteVehicle(Time, veh)
     local Tempo = Time * 1000
     print(Tempo)
 
-    Wait(Tempo)
+    Citizen.Wait(Tempo)
     DeleteEntity(Veiculo)
     TicketAtivo = false
     QBCore.Functions.Notify(Lang.Finished, 'primary', 7500)
@@ -193,7 +194,6 @@ end
 
 local function startTimer(Time, veh)
     local gameTimer = GetGameTimer()
-    local EliminarVeiculo = GetVehiclePedIsIn(PlayerPedId(), true)
     CreateThread(function()
         while TicketAtivo or not TicketAtivo do
             Wait(1)
@@ -214,7 +214,6 @@ end
 local function SpawnKart(Time)
     local veiculo = Config.Vehicle
     local coords = Config.Locations['KartSpawn']
-    local EliminarVeiculo = GetVehiclePedIsIn(PlayerPedId(), true)
 
     QBCore.Functions.SpawnVehicle(veiculo, function(veh)
         Veiculo = veh
