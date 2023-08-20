@@ -51,7 +51,7 @@ Citizen.CreateThread(function()
     end
 end)
 
-Citizen.CreateThread(function() --ped és blip, ez 100% maradhat!
+Citizen.CreateThread(function()
     local hash = GetHashKey("hc_driver")
     RequestModel(hash)
     while not HasModelLoaded(hash) do
